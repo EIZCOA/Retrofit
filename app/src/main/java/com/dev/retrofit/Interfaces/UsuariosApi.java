@@ -15,7 +15,7 @@ public interface UsuariosApi
     @GET(Ruta0)
     Call<List<Usuarios>> getUsuarios();
 
-    @GET("Ruta1/{id}")
-    Call<Usuarios> getUsuarios (@Path("valor") String valor);
+    //@GET("Ruta1/{id}")
+    //Call<Usuarios> getUsuarios (@Path("valor") String valor);
 
 }

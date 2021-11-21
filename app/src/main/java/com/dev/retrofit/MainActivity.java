@@ -45,8 +45,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ObtenerUsuario();
+        getUsuarios();
+        //ObtenerUsuario();
+        obtenerListaPersonas();
 
         txtidusuario=(EditText)findViewById(R.id.TxtSearch);
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                ObtenerUsuario(s.toString());
+               // ObtenerUsuario(s.toString());
 
             }
 
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Method get listPersonas
-                verificarPermisos();
+            verificarPermisos();
 
     }
 
@@ -134,18 +135,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void obtenerListaPersonas()
     {
-        Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl("https://jsonplaceholder.typicode.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build();
 
-        //LLamada interfaces
-        UsuariosApi usuariosApi = retrofit.create(UsuariosApi.class);
+        try {
+            Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+            //LLamada interfaces
+            UsuariosApi usuariosApi = retrofit.create(UsuariosApi.class);
 
-        Call<List<Usuarios>> calllista = usuariosApi.getUsuarios();
+            Call<List<Usuarios>> calllista = usuariosApi.getUsuarios();
 
-        calllista.enqueue(new Callback<List<Usuarios>>() {
+            calllista.enqueue(new Callback<List<Usuarios>>() {
             @Override
             public void onResponse(Call<List<Usuarios>> call, Response<List<Usuarios>> response) {
 
@@ -153,19 +155,19 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Log.i(usuarios.getTitle(),"onResponse");
                     titulos.add(usuarios.getTitle());
-
                     arrayAdapter.notifyDataSetChanged();
-
                 }
-
             }
-
             @Override
             public void onFailure(Call<List<Usuarios>> call, Throwable t) {
                 //call.toString();
                 t.getMessage();
             }
-        });
+            });
+        }catch (Exception e){
+            //System.out.println("Error es :" + e);
+            Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -184,9 +186,10 @@ public class MainActivity extends AppCompatActivity {
         UsuariosApi usuariosApi = retrofit.create(UsuariosApi.class);
 
 
-        Call<Usuarios> calllista = usuariosApi.getUsuarios(texto);
+        //Call<Usuarios> calllista = usuariosApi.getUsuarios(texto);
+        //Call<Usuarios> calllista = usuariosApi.getUsuarios();
 
-        calllista.enqueue(new Callback<Usuarios>() {
+       /* calllista.enqueue(new Callback<Usuarios>() {
             @Override
             public void onResponse(Call<Usuarios> call, Response<Usuarios> response) {
 
@@ -203,7 +206,50 @@ public class MainActivity extends AppCompatActivity {
                 //call.toString();
                 t.getMessage();
             }
-        });
+        });*/
 
+    }
+
+    private void getUsuarios(){
+        try {
+
+            //Creamos una instancia de retrofit
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://jsonplaceholder.typicode.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            //Llamamos la interfaz
+            UsuariosApi usuariosApi = retrofit.create(UsuariosApi.class);
+
+            Call<List<Usuarios>> calllista = usuariosApi.getUsuarios();
+
+            calllista.enqueue(new Callback<List<Usuarios>>() {
+                //En caso del que el response sea correcto
+                  @Override
+                  public void onResponse(Call<List<Usuarios>> call, Response<List<Usuarios>> response) {
+                    //Preguntamos si el response es successful
+                    if(!response.isSuccessful()){
+                        //Lleno mi listado
+                        for(Usuarios usuarios : response.body())
+                        {
+                            Log.i(usuarios.getTitle(),"onResponse");
+                            titulos.add(usuarios.getTitle());
+                            arrayAdapter.notifyDataSetChanged();
+                        }
+                    }
+                  }
+                //En caso del que el response devuelva error
+                  @Override
+                  public void onFailure(Call<List<Usuarios>> call, Throwable t) {
+                      Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_LONG).show();
+                  }
+              }
+
+            );
+
+        }catch(Exception e){
+            Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+        }
     }
 }
